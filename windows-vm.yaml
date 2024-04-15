@@ -1,0 +1,115 @@
+#Testing Windows VM
+---
+apiVersion: vmoperator.vmware.com/v1alpha1
+kind: VirtualMachine
+metadata:
+  name: windows-11-small
+  namespace: default
+  annotations:
+    vmoperator.vmware.com/image-supported-check: disable
+spec:
+  className: best-effort-small
+  imageName: 192.168.101.2:8000/tinywin.ova
+  powerState: poweredOn
+  vmMetadata:
+    secretName: sysprep-bootstrap-data
+    transport: Sysprep
+  networkInterfaces:
+  - networkName: "VM Network"
+    ethernetCardType: "vmxnet3"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sysprep-bootstrap-data
+  namespace: default
+stringData:
+  unattend: |
+    <?xml version="1.0" encoding="UTF-8"?>
+    <unattend xmlns="urn:schemas-microsoft-com:unattend">
+    <settings pass="specialize">
+      <component name="Microsoft-Windows-Deployment" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <RunSynchronous>
+          <RunSynchronousCommand wcm:action="add">
+            <Path>C:\sysprep\guestcustutil.exe restoreMountedDevices</Path>
+            <Order>1</Order>
+          </RunSynchronousCommand>
+          <RunSynchronousCommand wcm:action="add">
+            <Path>C:\sysprep\guestcustutil.exe flagComplete</Path>
+            <Order>2</Order>
+          </RunSynchronousCommand>
+          <RunSynchronousCommand wcm:action="add">
+            <Path>C:\sysprep\guestcustutil.exe deleteContainingFolder</Path>
+            <Order>3</Order>
+          </RunSynchronousCommand>
+        </RunSynchronous>
+      </component>
+      <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <FirstLogonCommands>
+          <SynchronousCommand wcm:action="add">
+            <CommandLine>netsh advfirewall firewall set rule group="remote desktop" new enable=Yes</CommandLine>
+            <Description>Enable RDP</Description>
+            <Order>1</Order>
+            <RequiresUserInput>false</RequiresUserInput>
+          </SynchronousCommand>
+        </FirstLogonCommands>
+      </component>
+      <component name="Microsoft-Windows-International-Core" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <InputLocale>en-US</InputLocale>
+        <SystemLocale>en-US</SystemLocale>
+        <UILanguage>en-US</UILanguage>
+        <UILanguageFallback>en-US</UILanguageFallback>
+        <UserLocale>en-US</UserLocale>
+      </component>
+    </settings>
+    <settings pass="oobeSystem">
+      <component name="Microsoft-Windows-Shell-Setup" processorArchitecture="amd64" publicKeyToken="31bf3856ad364e35" language="neutral" versionScope="nonSxS" xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <UserAccounts>
+          <AdministratorPassword>
+            <Value>ca$hc0ww</Value>
+            <PlainText>true</PlainText>
+          </AdministratorPassword>
+          <LocalAccounts>
+            <LocalAccount wcm:action="add">
+              <Name>tband</Name>
+              <Password>
+                <Value>VMware!90</Value>
+                <PlainText>true</PlainText>
+              </Password>
+              <Group>Administrators</Group>
+              <DisplayName>tband</DisplayName>
+              <Description>Local administrator account</Description>
+            </LocalAccount>
+          </LocalAccounts>
+        </UserAccounts>
+        <FirstLogonCommands>
+          <SynchronousCommand wcm:action="add">
+            <CommandLine>cmd.exe /c echo VECO VM Service says hello! > "%USERPROFILE%\Documents\hello.txt"</CommandLine>
+            <Description>Create Hello World text file</Description>
+            <Order>1</Order>
+            <RequiresUserInput>false</RequiresUserInput>
+          </SynchronousCommand>
+        </FirstLogonCommands>
+        <AutoLogon>
+          <Password>
+            <Value>VMware!90</Value>
+            <PlainText>true</PlainText>
+          </Password>
+          <Enabled>true</Enabled>
+          <LogonCount>1</LogonCount>
+          <Username>tband</Username>
+        </AutoLogon>
+        <OOBE>
+          <SkipMachineOOBE>true</SkipMachineOOBE>
+          <SkipUserOOBE>true</SkipUserOOBE>
+          <HideEULAPage>true</HideEULAPage>
+          <HideLocalAccountScreen>true</HideLocalAccountScreen>
+          <HideOEMRegistrationScreen>true</HideOEMRegistrationScreen>
+          <HideOnlineAccountScreens>true</HideOnlineAccountScreens>
+          <HideWirelessSetupInOOBE>true</HideWirelessSetupInOOBE>
+          <ProtectYourPC>3</ProtectYourPC>
+        </OOBE>
+        <TimeZone>Central Standard Time</TimeZone>
+      </component>
+    </settings>
+    </unattend>
