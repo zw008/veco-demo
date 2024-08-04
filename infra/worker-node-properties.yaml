@@ -31,24 +31,3 @@ spec:
   powerState: poweredOff
   vmMetadata:
     transport: CloudInit
-    configMapName: worker-config
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: worker-config
-  namespace: ec-system
-data:
-  networkconfig: |
-        version: 2
-        ethernets:
-            eth0:
-                dhcp: "false"
-                addresses:
-                    - 172.18.0.103/24
-                nameservers:
-                    addresses:
-                        - 172.18.0.1
-                routes:
-                    - to: 0.0.0.0/0
-                      via: 172.18.0.1
