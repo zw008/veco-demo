@@ -1,0 +1,33 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: base
+  namespace: default
+spec:
+  interval: 5m
+  url: https://github.com/k-guo/veco-basecfg.git
+  ref:
+    branch: main
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: site1
+  namespace: default
+spec:
+  interval: 5m
+  # targetNamespace: default
+  sourceRef:
+    kind: GitRepository
+    name: base
+  path: "./kustomize"
+  prune: true
+  timeout: 1m
+  patches:
+    - patch: |
+        - op: replace
+          path: /spec/className
+          value: best-effort-xsmall
+      target:
+        kind: VirtualMachine
+        name: linux-vm
