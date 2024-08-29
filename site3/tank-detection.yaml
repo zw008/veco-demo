@@ -42,7 +42,7 @@ spec:
         app: ai-inference
     spec:
       containers:
-      - image: viouservmware/ecs-cv:v1
+      - image: viouservmware/ecs-cv:v3
         command: ["python3", "-u", "/usr/src/app/app.py"]
         imagePullPolicy: Always
         name: ai-inference
