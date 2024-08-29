@@ -3,30 +3,13 @@ apiVersion: v1
 kind: Namespace
 metadata:
   labels:
-    kubernetes.io/metadata.name: russian
-  name: russian
----
-apiVersion: v1
-data:
-  .dockerconfigjson: eyJhdXRocyI6eyJodHRwczovL2luZGV4LmRvY2tlci5pby92MS8iOnsidXNlcm5hbWUiOiJ2aW91c2Vydm13YXJlIiwicGFzc3dvcmQiOiJWTXdhcmUxMjM0NSEiLCJlbWFpbCI6InZpb3VzZXIudm13YXJlQGdtYWlsLmNvbSIsImF1dGgiOiJkbWx2ZFhObGNuWnRkMkZ5WlRwV1RYZGhjbVV4TWpNME5TRT0ifX19
-kind: Secret
-metadata:
-  name: dockerhub-image-pull-secret
-  namespace: russian
-type: kubernetes.io/dockerconfigjson
----
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: russian 
-  namespace: russian 
-imagePullSecrets:
-- name: dockerhub-image-pull-secret
+    kubernetes.io/metadata.name: explore-gitops
+  name: explore-gitops
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: russian 
+  name: explore-gitops
 rules:
 - apiGroups: [""]
   resources:
@@ -44,15 +27,15 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: russian 
+  name: explore-gitops
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: russian
+  name: explore-gitops
 subjects:
 - kind: ServiceAccount
-  name: russian 
-  namespace: russian 
+  name: explore-gitops
+  namespace: explore-gitops
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -60,7 +43,7 @@ metadata:
   labels:
     app: ai-inference
   name: ai-inference
-  namespace: russian
+  namespace: explore-gitops
 spec:
   replicas: 1
   selector:
@@ -71,7 +54,7 @@ spec:
       labels:
         app: ai-inference
     spec:
-      serviceAccountName: russian 
+      serviceAccountName: explore-gitops
       containers:
       - image: viouservmware/ecs-cv:v1
         command: ["python3", "-u", "/usr/src/app/app.py"]
@@ -86,7 +69,7 @@ metadata:
   labels:
     app: ai-inference
   name: ai-inference
-  namespace: russian
+  namespace: explore-gitops
 spec:
   ports:
   - nodePort: 30333
