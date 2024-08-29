@@ -29,5 +29,3 @@ spec:
   className: best-effort-ec-small
   imageName: ec-wrkr.ova
   powerState: poweredOff
-  vmMetadata:
-    transport: CloudInit
