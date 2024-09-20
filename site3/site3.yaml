@@ -5,7 +5,7 @@ metadata:
   namespace: default
 spec:
   interval: 5m
-  url: https://github.com/k-guo/veco-basecfg.git
+  url: https://github.com/zw008/veco-basecfg.git
   ref:
     branch: main
 ---
